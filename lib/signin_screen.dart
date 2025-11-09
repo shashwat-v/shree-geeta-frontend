@@ -54,7 +54,6 @@ class _SignInScreenState
                   <
                     Widget
                   >[
-                    // Back arrow
                     IconButton(
                       onPressed: () {
                         Navigator.of(
@@ -72,7 +71,6 @@ class _SignInScreenState
                       height: 8,
                     ),
 
-                    // Small logo box
                     Container(
                       width: 44,
                       height: 44,
@@ -116,7 +114,6 @@ class _SignInScreenState
                       height: 24,
                     ),
 
-                    // Email label
                     Text(
                       'E-mail Address',
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -151,7 +148,6 @@ class _SignInScreenState
                       height: 16,
                     ),
 
-                    // Password label
                     Text(
                       'Password',
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -200,7 +196,6 @@ class _SignInScreenState
                       height: 12,
                     ),
 
-                    // Remember + Forgot
                     Row(
                       children:
                           <
@@ -266,7 +261,6 @@ class _SignInScreenState
                       height: 12,
                     ),
 
-                    // Login button
                     SizedBox(
                       width: double.infinity,
                       height: 52,
@@ -296,7 +290,6 @@ class _SignInScreenState
                       height: 16,
                     ),
 
-                    // Divider with Or
                     Row(
                       children:
                           <
@@ -337,7 +330,6 @@ class _SignInScreenState
                       height: 16,
                     ),
 
-                    // Google button
                     _SocialButton(
                       label: 'Continue with Google',
                       icon: Icons.g_mobiledata_rounded,
@@ -348,17 +340,10 @@ class _SignInScreenState
                       height: 12,
                     ),
 
-                    // Apple button
-                    // _SocialButton(
-                    //   label: 'Continue with Apple',
-                    //   icon: Icons.apple,
-                    //   onPressed: () {},
-                    // ),
                     const SizedBox(
                       height: 18,
                     ),
 
-                    // Sign up text
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children:

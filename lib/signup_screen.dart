@@ -74,7 +74,6 @@ class _SignUpScreenState
                       height: 8,
                     ),
 
-                    // Small logo tile
                     Container(
                       width: 44,
                       height: 44,
@@ -321,15 +320,6 @@ class _SignUpScreenState
                       onPressed: () {},
                     ),
 
-                    // const SizedBox(
-                    //   height: 12,
-                    // ),
-
-                    // _SocialButton(
-                    //   label: 'Continue with Apple',
-                    //   icon: Icons.apple,
-                    //   onPressed: () {},
-                    // ),
                     const SizedBox(
                       height: 18,
                     ),

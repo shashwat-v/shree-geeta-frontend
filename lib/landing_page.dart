@@ -33,14 +33,12 @@ class GetStarted
                   <
                     Widget
                   >[
-                    // Top logo and app name
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children:
                           <
                             Widget
                           >[
-                            // Placeholder for logo
                             Container(
                               width: 36,
                               height: 36,
@@ -93,7 +91,6 @@ class GetStarted
                       height: 28,
                     ),
 
-                    // Illustration placeholder box (replace with asset later)
                     Container(
                       width: 260,
                       height: 220,
@@ -119,7 +116,6 @@ class GetStarted
                       height: 28,
                     ),
 
-                    // Title
                     const Text(
                       'Welcome to Shree Geeta!',
                       textAlign: TextAlign.center,
@@ -134,7 +130,6 @@ class GetStarted
                       height: 8,
                     ),
 
-                    // Subtitle
                     const Text(
                       "Let's get booked for interviews on podcasts.",
                       textAlign: TextAlign.center,
@@ -149,7 +144,6 @@ class GetStarted
                       height: 28,
                     ),
 
-                    // Primary CTA
                     SizedBox(
                       width: 220,
                       height: 48,
@@ -212,7 +206,6 @@ class GetStarted
                       height: 20,
                     ),
 
-                    // Secondary links
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children:

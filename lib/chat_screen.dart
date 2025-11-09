@@ -149,9 +149,3 @@ class _ChatScreenState
     );
   }
 }
-
-
-// ShreeGeeta header ["three lines", "title", "three dots"]
-// dynamic chat screeen showing requests and replies
-// footer floating, ["Ask a question...", "send button logo"]
-
