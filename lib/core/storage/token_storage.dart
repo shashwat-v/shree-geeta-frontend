@@ -38,6 +38,15 @@ class TokenStorage {
     }
   }
 
+  static Future<String?> getUserData() async {
+    try {
+      return await _storage.read(key: _userDataKey);
+    } catch (e) {
+      developer.log('Failed to read user data: $e', name: 'TokenStorage');
+      return null;
+    }
+  }
+
   static Future<bool> isAuthenticated() async {
     final token = await getAccesstoken();
     return token != null && token.isNotEmpty;
