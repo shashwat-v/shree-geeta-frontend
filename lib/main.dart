@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shree_geeta/chat_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:shree_geeta/features/auth/provider/auth_provider.dart';
+import 'package:shree_geeta/app/app.dart';
 
 void main() {
   runApp(const ShreeGeetaApp());
@@ -10,16 +12,11 @@ class ShreeGeetaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 255, 153, 51),
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-      ),
-      home: const Scaffold(body: ChatScreen()),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()..checkAuthState()),
+      ],
+      child: const App(),
     );
   }
 }

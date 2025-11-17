@@ -47,7 +47,7 @@ class ApiClient {
         },
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return RegisterResponse.fromJSON(response.data);
       } else {
         throw ApiException(
