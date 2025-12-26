@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shree_geeta/features/auth/provider/auth_provider.dart';
+import 'package:shree_geeta/features/chat/provider/chat_provider.dart';
 import 'package:shree_geeta/app/app.dart';
 
 void main() {
@@ -15,6 +16,7 @@ class ShreeGeetaApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()..checkAuthState()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
       child: const App(),
     );

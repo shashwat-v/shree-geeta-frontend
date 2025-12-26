@@ -77,6 +77,53 @@ class ApiClient {
     }
   }
 
+  Stream<String> askStream(String query) async* {
+    try {
+      final response = await _dio.post(
+        "/ask_stream",
+        data: {"question": query},
+        options: Options(
+          responseType: ResponseType.stream,
+          headers: {
+            'Accept': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+          },
+        ),
+      );
+
+      final stream = response.data.stream as Stream<List<int>>;
+      String buffer = '';
+
+      await for (final chunk in stream) {
+        buffer += String.fromCharCodes(chunk);
+
+        final lines = buffer.split('\n');
+        buffer = lines.last;
+
+        for (int i = 0; i < lines.length - 1; i++) {
+          final line = lines[i].trim();
+
+          if (line.startsWith('data: ')) {
+            final data = line.substring(6);
+            if (data.isNotEmpty && data != '[DONE]') {
+              yield data;
+            }
+          }
+        }
+      }
+
+      if (buffer.trim().startsWith('data: ')) {
+        final data = buffer.trim().substring(6);
+        if (data.isNotEmpty && data != '[DONE]') {
+          yield data;
+        }
+      }
+    } on DioException catch (e) {
+      developer.log('Stream error: $e', name: 'ApiClient');
+      throw _handleDioError(e);
+    }
+  }
+
   Future<void> logout() async {
     try {} catch (e) {
       developer.log('Logout API error: $e', name: 'ApiClient');
