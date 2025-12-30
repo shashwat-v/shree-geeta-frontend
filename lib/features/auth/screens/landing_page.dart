@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shree_geeta/features/auth/screens/signin_screen.dart';
 import 'package:shree_geeta/features/auth/screens/signup_screen.dart';
+import 'package:shree_geeta/core/storage/token_storage.dart';
 
 class GetStarted extends StatelessWidget {
   const GetStarted({super.key});
@@ -120,7 +121,8 @@ class GetStarted extends StatelessWidget {
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
-                                onPressed: () {
+                                onPressed: () async {
+                                  await TokenStorage.setHasSeenOnboarding(true);
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -134,7 +136,8 @@ class GetStarted extends StatelessWidget {
                             ),
                             const SizedBox(height: 12),
                             TextButton(
-                              onPressed: () {
+                              onPressed: () async {
+                                await TokenStorage.setHasSeenOnboarding(true);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(

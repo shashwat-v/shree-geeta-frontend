@@ -9,6 +9,7 @@ class TokenStorage {
 
   static const String _accessTokenKey = "access_token";
   static const String _userDataKey = "user_data";
+  static const String _hasSeenOnboardingKey = "has_seen_onboarding";
 
   static Future<void> saveAccessToken(String token) async {
     try {
@@ -44,6 +45,25 @@ class TokenStorage {
     } catch (e) {
       developer.log('Failed to read user data: $e', name: 'TokenStorage');
       return null;
+    }
+  }
+
+  static Future<void> setHasSeenOnboarding(bool value) async {
+    try {
+      await _storage.write(key: _hasSeenOnboardingKey, value: value ? '1' : '0');
+      developer.log('Onboarding flag saved: $value', name: 'TokenStorage');
+    } catch (e) {
+      developer.log('Failed to save onboarding flag: $e', name: 'TokenStorage');
+    }
+  }
+
+  static Future<bool> hasSeenOnboarding() async {
+    try {
+      final val = await _storage.read(key: _hasSeenOnboardingKey);
+      return val == '1';
+    } catch (e) {
+      developer.log('Failed to read onboarding flag: $e', name: 'TokenStorage');
+      return false;
     }
   }
 
