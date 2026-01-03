@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shree_geeta/components/message_bubble.dart';
 import 'package:shree_geeta/features/chat/provider/chat_provider.dart';
+import 'chat_sidebar.dart';
 
 class ChatScreen
     extends
@@ -21,15 +22,45 @@ class _ChatScreenState
     extends
         State<
           ChatScreen
-        > {
+        >
+    with
+        SingleTickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+
+  late AnimationController _sidebarController;
+  bool _isSidebarOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _sidebarController = AnimationController(
+      vsync: this,
+      duration: const Duration(
+        milliseconds: 250,
+      ),
+    );
+  }
 
   @override
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
+    _sidebarController.dispose();
     super.dispose();
+  }
+
+  void _toggleSidebar() {
+    if (_isSidebarOpen) {
+      _sidebarController.reverse();
+    } else {
+      _sidebarController.forward();
+    }
+    setState(
+      () {
+        _isSidebarOpen = !_isSidebarOpen;
+      },
+    );
   }
 
   void _handleSend() {
@@ -73,265 +104,308 @@ class _ChatScreenState
         >();
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        surfaceTintColor: Colors.white,
-        backgroundColor: Colors.white,
-        leading: IconButton(
-          onPressed: () {},
-          icon: const Icon(
-            Icons.menu,
-          ),
-        ),
-        centerTitle: true,
-        title: const Text(
-          "Geeta GPT",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              if (chatProvider.messages.isNotEmpty) {
-                showDialog(
-                  context: context,
-                  builder:
-                      (
-                        ctx,
-                      ) => AlertDialog(
-                        title: const Text(
-                          'Clear Chat',
-                        ),
-                        content: const Text(
-                          'Are you sure you want to clear all messages?',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(
-                              ctx,
-                            ),
-                            child: const Text(
-                              'Cancel',
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              context
-                                  .read<
-                                    ChatProvider
-                                  >()
-                                  .clearMessages();
-                              Navigator.pop(
-                                ctx,
-                              );
-                            },
-                            child: const Text(
-                              'Clear',
-                            ),
-                          ),
-                        ],
+      body: Stack(
+        children: [
+          /// ================= MAIN CHAT UI =================
+          GestureDetector(
+            onTap: _isSidebarOpen
+                ? _toggleSidebar
+                : null,
+            child: AbsorbPointer(
+              absorbing: _isSidebarOpen,
+              child: Scaffold(
+                backgroundColor: Colors.white,
+                appBar: AppBar(
+                  surfaceTintColor: Colors.white,
+                  backgroundColor: Colors.white,
+                  leading: IconButton(
+                    onPressed: _toggleSidebar,
+                    icon: const Icon(
+                      Icons.menu_rounded,
+                    ),
+                  ),
+                  centerTitle: true,
+                  title: const Text(
+                    "Geeta GPT",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  actions: [
+                    IconButton(
+                      onPressed: () {
+                        if (chatProvider.messages.isNotEmpty) {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (
+                                  ctx,
+                                ) => AlertDialog(
+                                  title: const Text(
+                                    'Clear Chat',
+                                  ),
+                                  content: const Text(
+                                    'Are you sure you want to clear all messages?',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(
+                                        ctx,
+                                      ),
+                                      child: const Text(
+                                        'Cancel',
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        context
+                                            .read<
+                                              ChatProvider
+                                            >()
+                                            .clearMessages();
+                                        Navigator.pop(
+                                          ctx,
+                                        );
+                                      },
+                                      child: const Text(
+                                        'Clear',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                          );
+                        }
+                      },
+                      icon: const Icon(
+                        Icons.edit_square,
                       ),
-                );
-              }
-            },
-            icon: const Icon(
-              Icons.edit_square,
+                    ),
+                  ],
+                ),
+                body: SafeArea(
+                  child: Column(
+                    children: [
+                      /// ERROR BAR
+                      if (chatProvider.error !=
+                          null)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(
+                            12,
+                          ),
+                          color: Colors.red.shade100,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: Colors.red.shade700,
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  chatProvider.error!,
+                                  style: TextStyle(
+                                    color: Colors.red.shade700,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.close,
+                                ),
+                                iconSize: 20,
+                                onPressed: () {
+                                  context
+                                      .read<
+                                        ChatProvider
+                                      >()
+                                      .clearError();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      /// CHAT BODY
+                      Expanded(
+                        child: chatProvider.messages.isEmpty
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.spa_rounded,
+                                      size: 64,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                    const SizedBox(
+                                      height: 16,
+                                    ),
+                                    Text(
+                                      'Ask me anything about the Bhagavad Gita',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : ListView.builder(
+                                controller: _scrollController,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                ),
+                                itemCount: chatProvider.messages.length,
+                                itemBuilder:
+                                    (
+                                      context,
+                                      index,
+                                    ) {
+                                      final msg = chatProvider.messages[index];
+                                      return MessageBubble(
+                                        isUser:
+                                            msg.sender ==
+                                            "user",
+                                        text: msg.text,
+                                      );
+                                    },
+                              ),
+                      ),
+
+                      /// STREAMING INDICATOR
+                      if (chatProvider.isStreaming)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                          ),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor:
+                                      AlwaysStoppedAnimation<
+                                        Color
+                                      >(
+                                        Colors.orange.shade400,
+                                      ),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              Text(
+                                'Thinking...',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      /// INPUT BAR
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 10,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _controller,
+                                enabled: !chatProvider.isStreaming,
+                                onSubmitted:
+                                    (
+                                      _,
+                                    ) => _handleSend(),
+                                decoration: InputDecoration(
+                                  hintText: "Ask a question...",
+                                  filled: true,
+                                  fillColor: Colors.grey.shade200,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 14,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      36,
+                                    ),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            GestureDetector(
+                              onTap: chatProvider.isStreaming
+                                  ? null
+                                  : _handleSend,
+                              child: Container(
+                                height: 46,
+                                width: 46,
+                                decoration: BoxDecoration(
+                                  color: chatProvider.isStreaming
+                                      ? Colors.grey.shade400
+                                      : const Color.fromRGBO(
+                                          254,
+                                          153,
+                                          51,
+                                          1,
+                                        ),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.arrow_upward,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
+          ),
+
+          /// ================= DARK OVERLAY =================
+          if (_isSidebarOpen)
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _toggleSidebar, // 👈 CLOSES SIDEBAR
+                child: AnimatedOpacity(
+                  opacity: 0.4,
+                  duration: const Duration(
+                    milliseconds: 250,
+                  ),
+                  child: Container(
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+
+          /// ================= SIDEBAR =================
+          ChatSidebar(
+            controller: _sidebarController,
           ),
         ],
-      ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            if (chatProvider.error !=
-                null)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(
-                  12,
-                ),
-                color: Colors.red.shade100,
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      color: Colors.red.shade700,
-                    ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Expanded(
-                      child: Text(
-                        chatProvider.error!,
-                        style: TextStyle(
-                          color: Colors.red.shade700,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                      ),
-                      onPressed: () {
-                        context
-                            .read<
-                              ChatProvider
-                            >()
-                            .clearError();
-                      },
-                      iconSize: 20,
-                    ),
-                  ],
-                ),
-              ),
-            Expanded(
-              child: chatProvider.messages.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.spa_rounded,
-                            size: 64,
-                            color: Colors.grey.shade400,
-                          ),
-                          const SizedBox(
-                            height: 16,
-                          ),
-                          Text(
-                            'Ask me anything about the Bhagavad Gita',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.only(
-                        top: 10,
-                        bottom: 10,
-                      ),
-                      itemCount: chatProvider.messages.length,
-                      itemBuilder:
-                          (
-                            context,
-                            index,
-                          ) {
-                            final msg = chatProvider.messages[index];
-                            return MessageBubble(
-                              isUser:
-                                  msg.sender ==
-                                  "user",
-                              text: msg.text,
-                            );
-                          },
-                    ),
-            ),
-            if (chatProvider.isStreaming)
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                ),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor:
-                            AlwaysStoppedAnimation<
-                              Color
-                            >(
-                              Colors.orange.shade400,
-                            ),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Text(
-                      'Thinking...',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 10,
-                horizontal: 10,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      enabled: !chatProvider.isStreaming,
-                      onSubmitted:
-                          (
-                            _,
-                          ) => _handleSend(),
-                      decoration: InputDecoration(
-                        hintText: "Ask a question...",
-                        filled: true,
-                        fillColor: Colors.grey.shade200,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            36,
-                          ),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  GestureDetector(
-                    onTap: chatProvider.isStreaming
-                        ? null
-                        : _handleSend,
-                    child: Container(
-                      height: 46,
-                      width: 46,
-                      decoration: BoxDecoration(
-                        color: chatProvider.isStreaming
-                            ? Colors.grey.shade400
-                            : const Color.fromRGBO(
-                                254,
-                                153,
-                                51,
-                                1,
-                              ),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.arrow_upward,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

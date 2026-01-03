@@ -29,7 +29,7 @@ class App
         ),
         useMaterial3: true,
       ),
-      initialRoute: '/splash',
+      initialRoute: '/home',
       routes: {
         '/welcome':
             (
